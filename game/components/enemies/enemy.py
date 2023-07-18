@@ -2,26 +2,31 @@ import pygame
 from random import randint
 from pygame.sprite import Sprite
 from game.utils.constants import ENEMY_1,ENEMY_2,SHIP_WIDTH,SHIP_HEIGHT,SCREEN_WIDTH,SCREEN_HEIGHT
+from game.components.bullets.bullet import Bullet
 
 class Enemy(Sprite):
     Y_POS=20
     SPEED_X= 5
-    SPEED_Y = 1
+    SPEED_Y = 3
     MOV_X ={0: 'left', 1:'right'}
-    def __init__(self):
-        self.image = ENEMY_1
+    IMAGE ={1:ENEMY_1, 2:ENEMY_2}
+    def __init__(self,image_index=1, speed_x=SPEED_X, speed_y=SPEED_Y, move_x_for =[30,100]):
+        self.image = self.IMAGE[image_index]
         self.image = pygame.transform.scale(self.image,(SHIP_WIDTH,SHIP_HEIGHT))
         self.rect = self.image.get_rect()
         self.rect.x= randint(0,SCREEN_WIDTH)
         self.rect.y= self.Y_POS
-        self.speed_x =self.SPEED_X
-        self.speed_y =self.SPEED_Y
+        self.speed_x =speed_x
+        self.speed_y =speed_y
         self.movement_x =self.MOV_X[randint(0, 1)]
-        self.movement_x_for =randint(30,40)
+        self.movement_x_for =randint(move_x_for[0],move_x_for[1])
         self.step=0
+        self.type='enemy'
+        self.shooting_time= randint(30,50)
 
-    def update(self, enemies):
+    def update(self, enemies, game):
         self.rect.y +=self.speed_y
+        self.shoot(game.bullet_manager)
         if self.movement_x == 'left':
             self.rect.x -= self.speed_x
             
@@ -33,6 +38,14 @@ class Enemy(Sprite):
         if self.rect.y >= SCREEN_HEIGHT:
             enemies.remove(self)
         
+    def shoot(self,bullet_manager):
+        current_time = pygame.time.get_ticks()
+        if self.shooting_time <= current_time:
+            bullet = Bullet(self)
+            bullet_manager.add_bullet(bullet)
+            self.shooting_time+= randint(20,50)
+
+
 
     def draw(self,screen):
         screen.blit(self.image, self.rect)
@@ -49,49 +62,6 @@ class Enemy(Sprite):
             self.step = 0
 
 
-class Enemy2(Sprite):
-    
-    Y_POS = 20
-    SPEED_X= 2
-    SPEED_Y = 5  
-    MOV_Y = {0: 'up', 1: 'down'} 
-
-    def __init__(self):
-        self.image = ENEMY_2
-        self.image = pygame.transform.scale(self.image, (SHIP_WIDTH, SHIP_HEIGHT))
-        self.rect = self.image.get_rect()
-        self.rect.x = randint(0, SCREEN_WIDTH)
-        self.rect.y = self.Y_POS
-        self.speed_y = self.SPEED_Y
-        self.speed_x = self.SPEED_X
-        self.movement_y = self.MOV_Y[randint(0, 1)]  
-        self.movement_y_for = randint(5, 40)
-        self.step = 0
-
-    def update(self, enemies):
-        self.rect.x +=self.speed_x
-        if self.movement_y == 'up':
-            self.rect.y -= self.speed_y
-        else:
-            self.rect.y += self.speed_y
-        self.change_movement_y()
-
-        if self.rect.y >= SCREEN_WIDTH:
-            enemies.remove(self)
-           
-        
-
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
-
-    def change_movement_y(self):
-        self.step += 1
-        if (self.step >= self.movement_y_for and self.movement_y == 'down') or (self.rect.y >= SCREEN_HEIGHT - SHIP_HEIGHT):
-            self.movement_y = 'up'
-            self.step = 0
-        elif (self.step >= self.movement_y_for and self.movement_y == 'up') or (self.rect.y <= 10):
-            self.movement_y = 'down'
-            self.step = 0
 
 
 

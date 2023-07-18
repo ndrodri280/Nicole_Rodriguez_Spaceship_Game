@@ -1,27 +1,32 @@
-from game.components.enemies.enemy import Enemy, Enemy2
+from game.components.enemies.enemy import Enemy
 from random import randint, choice
 class EnemyManager:
     def __init__(self):
         self.enemies =[]
 
 
-    def update(self):
+    def update(self,game):
         self.add_enemy()
         
         for enemy  in self.enemies:
-            enemy.update(self.enemies)
-        for enemy2 in self.enemies:
-            enemy2.update(self.enemies)
+            enemy.update(self.enemies,game)
+      
     def draw(self,screen):
         for enemy in self.enemies:
             enemy.draw(screen)
-        for enemy2 in self.enemies:
-            enemy2.draw(screen)
+       
 
     def add_enemy(self):
+        enemy_type=randint(1,2)
+        if enemy_type == 1:
+            enemy=Enemy()
+        else:
+            speed_x = 5
+            speed_y = 2
+            move_x_for =[50,120]
+            enemy = Enemy(enemy_type,speed_x,speed_y,move_x_for)
         if len(self.enemies) < 1:
-            enemy_type = choice([Enemy, Enemy2])  
-            enemy = enemy_type()  
+           
             self.enemies.append(enemy)
         
 
